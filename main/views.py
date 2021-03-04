@@ -32,7 +32,27 @@ def singleSlug(request, single_slug):
 
     tutorials = [t.tutorial_slug for t in Tutorial.objects.all()]
     if single_slug in tutorials:
-        return HttpResponse(f"{single_slug} is a tutorial!!")
+
+        #getting the tutorial which matches the current slug
+        this_tutorial = Tutorial.objects.get(tutorial_slug=single_slug)
+
+        #getting all the tutorials which are in the series of this_tutorial
+        tutorial_from_series = Tutorial.objects.filter(
+            tutorial_series__tutorial_series=this_tutorial.tutorial_series
+            ).order_by("tutorial_published")
+
+        print(tutorial_from_series, "*********************")
+
+        #getting index of current tutorial from its series
+        this_tutorial_idx = list(tutorial_from_series).index(this_tutorial)
+
+
+
+        return render(request,
+                    "main/tutorial.html",
+                    {"tutorial":this_tutorial, 
+                    "sidebar" : tutorial_from_series,
+                    "this_tutorial_idx" : this_tutorial_idx})
 
     return HttpResponse(f"{single_slug} does not correspond to anything")
 
